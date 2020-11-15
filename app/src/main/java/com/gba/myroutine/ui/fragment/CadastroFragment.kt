@@ -37,7 +37,7 @@ class CadastroFragment : Fragment() {
         cadastrar()
     }
 
-    fun cadastrar() {
+    private fun cadastrar() {
         btnCadastrar.setOnClickListener {view ->
             if (editCadNome.text.toString().isNotBlank()) {
                 if (editCadEmail.text.toString().isNotBlank()) {
@@ -49,6 +49,7 @@ class CadastroFragment : Fragment() {
                                 this.senha = editCadRepetirSenha.text.toString()
                             }
                             viewModel.save(usuario)
+                            progressCadastro.visibility = View.VISIBLE
                             view.findNavController()
                                 .navigate(R.id.action_cadastroFragment_to_loginFragment)
                         } else {
@@ -68,10 +69,15 @@ class CadastroFragment : Fragment() {
     }
     private fun observe() {
         viewModel.saveUsuario.observe(this, Observer {
-            if(it)
-                Toast.makeText(context, "Sucesso!", Toast.LENGTH_SHORT).show()
-            else
-                Toast.makeText(context, "Falha!", Toast.LENGTH_SHORT).show()
+            if(it) {
+                progressCadastro.visibility = View.VISIBLE
+                Toast.makeText(context, "Usuario cadastrado com sucesso!", Toast.LENGTH_SHORT)
+                        .show()
+            } else {
+                progressCadastro.visibility = View.VISIBLE
+                Toast.makeText(context, "Falha ao Cadastrar Usuario!", Toast.LENGTH_SHORT)
+                        .show()
+            }
         })
     }
 }

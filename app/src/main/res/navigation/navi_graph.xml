@@ -29,5 +29,21 @@
         android:id="@+id/tarefasFragment"
         android:name="com.gba.myroutine.ui.fragment.TarefasFragment"
         android:label="fragment_tarefas"
-        tools:layout="@layout/fragment_tarefas" />
+        tools:layout="@layout/fragment_tarefas" >
+        <action
+            android:id="@+id/action_tarefasFragment_to_cadastroTarefaFragment"
+            app:destination="@id/cadastroTarefaFragment" />
+        <argument
+            android:name="id"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/cadastroTarefaFragment"
+        android:name="com.gba.myroutine.ui.fragment.CadastroTarefaFragment"
+        android:label="fragment_cadastro_tarefa"
+        tools:layout="@layout/fragment_cadastro_tarefa" >
+        <action
+            android:id="@+id/action_cadastroTarefaFragment_to_tarefasFragment"
+            app:destination="@id/tarefasFragment" />
+    </fragment>
 </navigation>
