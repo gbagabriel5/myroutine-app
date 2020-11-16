@@ -12,7 +12,7 @@ class TarefaRepository(context: Context) {
 
     fun update(tarefa: Tarefa) : Boolean = dataBase.update(tarefa) > 0
 
-    fun delete(tarefa: Tarefa) = dataBase.delete(tarefa)
+    fun delete(tarefa: Tarefa) : Boolean = dataBase.delete(tarefa) > 0
 
     fun get(id: Int) : Tarefa = dataBase.get(id)
 

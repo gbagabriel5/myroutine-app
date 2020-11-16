@@ -8,7 +8,6 @@ import com.gba.myroutine.R
 import com.gba.myroutine.model.Tarefa
 import com.gba.myroutine.ui.listener.TarefasListener
 import kotlinx.android.synthetic.main.card_tarefa.view.*
-import kotlinx.android.synthetic.main.fragment_tarefas.view.*
 
 class TarefasAdapter : RecyclerView.Adapter<TarefasAdapter.GuestViewHolder>() {
 
@@ -45,7 +44,7 @@ class TarefasAdapter : RecyclerView.Adapter<TarefasAdapter.GuestViewHolder>() {
             itemView.txtTitulo.text = tarefa.titulo
             itemView.txtDesc.text = tarefa.descricao
             itemView.txtData.text = tarefa.data
-            itemView.txtTitulo.setOnClickListener {
+            itemView.rootView.setOnClickListener {
                 listener.onClick(tarefa.id)
             }
 //            itemView.txtName.setOnLongClickListener {

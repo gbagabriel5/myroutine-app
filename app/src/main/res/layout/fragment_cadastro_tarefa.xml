@@ -8,11 +8,6 @@
     android:orientation="vertical"
     tools:context=".ui.fragment.CadastroTarefaFragment">
 
-    <include
-        layout="@layout/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <EditText
         android:id="@+id/editTitulo"
         android:layout_width="match_parent"

@@ -51,7 +51,7 @@ class CadastroFragment : Fragment() {
                             viewModel.save(usuario)
                             progressCadastro.visibility = View.VISIBLE
                             view.findNavController()
-                                .navigate(R.id.action_cadastroFragment_to_loginFragment)
+                                .navigate(R.id.action_fragmentCadastro_to_fragmentLogin)
                         } else {
                             Toast.makeText(context, "As senhas não conincidem!",
                                 Toast.LENGTH_SHORT).show()

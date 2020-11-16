@@ -2,20 +2,19 @@ package com.gba.myroutine.ui.fragment
 
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.GridLayoutManager
 import com.gba.myroutine.R
 import com.gba.myroutine.ui.adapter.TarefasAdapter
 import com.gba.myroutine.ui.listener.TarefasListener
 import com.gba.myroutine.ui.viewmodel.TarefasViewModel
 import kotlinx.android.synthetic.main.fragment_tarefas.*
-import kotlinx.android.synthetic.main.toolbar.*
-import kotlinx.android.synthetic.main.toolbar.view.*
 
 class TarefasFragment : Fragment() {
 
@@ -32,10 +31,7 @@ class TarefasFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-//        toolbarPrincipal.title = "MyRoutine"
-//        setHasOptionsMenu(true)
-//        setMenuVisibility(true)
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_tarefas, container, false)
     }
 
@@ -47,10 +43,9 @@ class TarefasFragment : Fragment() {
 
         mListener = object : TarefasListener {
             override fun onClick(id: Int) {
-                var controller = findNavController()
-                val bundle = Bundle()
-                bundle.putInt("id", id)
-                controller.navigate(R.id.action_tarefasFragment_to_cadastroTarefaFragment, bundle)
+                val action = TarefasFragmentDirections.
+                actionFragmentTarefasToFragmentCadastroTarefas(id)
+                view.findNavController().navigate(action)
             }
 
             override fun onDelete(id: Int) {
@@ -61,8 +56,9 @@ class TarefasFragment : Fragment() {
         tarefaAdapter.attachListener(mListener)
         observe()
         floatingActionButton.setOnClickListener {
-            var controller = findNavController()
-            controller.navigate(R.id.action_tarefasFragment_to_cadastroTarefaFragment)
+            val action = TarefasFragmentDirections.
+            actionFragmentTarefasToFragmentCadastroTarefas(0)
+            it.findNavController().navigate(action)
         }
     }
 
@@ -77,21 +73,25 @@ class TarefasFragment : Fragment() {
         })
         viewModel.usuarioDeslogado.observe(viewLifecycleOwner, Observer {
             var controller = findNavController()
-            controller.navigate(R.id.action_tarefasFragment_to_cadastroTarefaFragment)
+            controller.navigate(R.id.action_fragmentTarefas_to_fragmentLogin)
         })
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        inflater!!.inflate(R.menu.menu_main, menu)
-//        super.onCreateOptionsMenu(menu, inflater)
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            R.id.menuSair -> {
-//                viewModel.deslogar()
-//            } else -> { }
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_main, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.menuSair -> {
+                viewModel.deslogar()
+                return true
+            }
+            else -> {
+                return NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
+                        || super.onOptionsItemSelected(item)
+            }
+        }
+    }
 }

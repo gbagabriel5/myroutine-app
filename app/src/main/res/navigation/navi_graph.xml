@@ -3,47 +3,50 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/fragmentLogin">
     <fragment
-        android:id="@+id/cadastroFragment"
+        android:id="@+id/fragmentCadastro"
         android:name="com.gba.myroutine.ui.fragment.CadastroFragment"
         android:label="fragment_cadastro"
         tools:layout="@layout/fragment_cadastro" >
         <action
-            android:id="@+id/action_cadastroFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            android:id="@+id/action_fragmentCadastro_to_fragmentLogin"
+            app:destination="@id/fragmentLogin" />
     </fragment>
     <fragment
-        android:id="@+id/loginFragment"
+        android:id="@+id/fragmentLogin"
         android:name="com.gba.myroutine.ui.fragment.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
             android:id="@+id/action_loginFragment_to_cadastroFragment"
-            app:destination="@id/cadastroFragment" />
+            app:destination="@id/fragmentCadastro" />
         <action
             android:id="@+id/action_loginFragment_to_tarefasFragment"
-            app:destination="@id/tarefasFragment" />
+            app:destination="@id/fragmentTarefas" />
     </fragment>
     <fragment
-        android:id="@+id/tarefasFragment"
+        android:id="@+id/fragmentTarefas"
         android:name="com.gba.myroutine.ui.fragment.TarefasFragment"
-        android:label="fragment_tarefas"
-        tools:layout="@layout/fragment_tarefas" >
+        android:label="MyRoutine"
+        tools:layout="@layout/fragment_tarefas">
         <action
-            android:id="@+id/action_tarefasFragment_to_cadastroTarefaFragment"
-            app:destination="@id/cadastroTarefaFragment" />
+            android:id="@+id/action_fragmentTarefas_to_fragmentCadastroTarefas"
+            app:destination="@id/fragmentCadastroTarefas" />
+        <action
+            android:id="@+id/action_fragmentTarefas_to_fragmentLogin"
+            app:destination="@id/fragmentLogin" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentCadastroTarefas"
+        android:name="com.gba.myroutine.ui.fragment.CadastroTarefaFragment"
+        android:label="Tarefa"
+        tools:layout="@layout/fragment_cadastro_tarefa">
+        <action
+            android:id="@+id/action_fragmentCadastroTarefas_to_fragmentTarefas"
+            app:destination="@id/fragmentTarefas" />
         <argument
             android:name="id"
             app:argType="integer" />
-    </fragment>
-    <fragment
-        android:id="@+id/cadastroTarefaFragment"
-        android:name="com.gba.myroutine.ui.fragment.CadastroTarefaFragment"
-        android:label="fragment_cadastro_tarefa"
-        tools:layout="@layout/fragment_cadastro_tarefa" >
-        <action
-            android:id="@+id/action_cadastroTarefaFragment_to_tarefasFragment"
-            app:destination="@id/tarefasFragment" />
     </fragment>
 </navigation>

@@ -6,13 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.MainActivity">
 
-    <fragment
-        android:id="@+id/productActivity"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_principal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        style="@style/Toolbar"
+        app:titleTextColor="@color/black"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <fragment
+        android:id="@+id/my_nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:defaultNavHost="true"
-        app:navGraph="@navigation/navi_graph"
-        />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_principal"
+        app:navGraph="@navigation/navi_graph" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

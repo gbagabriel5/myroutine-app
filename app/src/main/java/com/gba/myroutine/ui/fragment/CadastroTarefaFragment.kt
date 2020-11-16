@@ -6,15 +6,18 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.ui.NavigationUI
 import com.gba.myroutine.R
 import com.gba.myroutine.model.Tarefa
 import com.gba.myroutine.ui.viewmodel.CadastroTarefaViewModel
 import kotlinx.android.synthetic.main.fragment_cadastro_tarefa.*
-import kotlinx.android.synthetic.main.toolbar.*
-import kotlinx.android.synthetic.main.toolbar.view.*
 
 class CadastroTarefaFragment : Fragment() {
+
+    val args: CadastroTarefaFragmentArgs by navArgs()
 
     private lateinit var viewModel: CadastroTarefaViewModel
 
@@ -29,10 +32,7 @@ class CadastroTarefaFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-//        toolbarPrincipal.title = "Tarefa"
-//        setHasOptionsMenu(true)
-//        setMenuVisibility(true)
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_cadastro_tarefa, container, false)
     }
 
@@ -43,7 +43,7 @@ class CadastroTarefaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    fun salvar() {
+    private fun salvar() {
         btnSalvar.setOnClickListener{
             if (!editTitulo.text.toString().isNullOrBlank()) {
                 val titulo = editTitulo.text.toString()
@@ -65,12 +65,8 @@ class CadastroTarefaFragment : Fragment() {
     }
 
     private fun loadData() {
-        arguments?.let {
-            var id = TarefasFragmentArgs.fromBundle(it).id
-            id.let {
-                viewModel.load(mGuestId)
-            }
-        }
+        mGuestId = args.id
+        viewModel.load(mGuestId)
     }
 
     private fun observe() {
@@ -80,25 +76,39 @@ class CadastroTarefaFragment : Fragment() {
             else
                 Toast.makeText(context, "Falha!", Toast.LENGTH_SHORT).show()
             var controller = findNavController()
-            controller.navigate(R.id.action_cadastroTarefaFragment_to_tarefasFragment)
+            controller.navigate(R.id.action_fragmentCadastroTarefas_to_fragmentTarefas)
         })
         viewModel.tarefa.observe(viewLifecycleOwner, Observer {
-            editTitulo.setText(it.titulo)
-            editDesc.setText(it.descricao)
+            if(it != null) {
+                editTitulo.setText(it.titulo)
+                editDesc.setText(it.descricao)
+            }
+        })
+        viewModel.tarefaRemovida.observe(viewLifecycleOwner, Observer {
+            if(it)
+                Toast.makeText(context, "Tarefa removida com sucesso!", Toast.LENGTH_SHORT).show()
+            else
+                Toast.makeText(context, "Falha ao remover Tarefa!", Toast.LENGTH_SHORT).show()
+            var controller = findNavController()
+            controller.navigate(R.id.action_fragmentCadastroTarefas_to_fragmentTarefas)
         })
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        inflater!!.inflate(R.menu.menu_form, menu)
-//        super.onCreateOptionsMenu(menu, inflater)
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            R.id.menuSalvar -> {
-//
-//            } else -> { }
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_form, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.menuDelete -> {
+                viewModel.delete(args.id)
+                return true
+            }
+            else -> {
+                return NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
+                        || super.onOptionsItemSelected(item)
+            }
+        }
+    }
 }
