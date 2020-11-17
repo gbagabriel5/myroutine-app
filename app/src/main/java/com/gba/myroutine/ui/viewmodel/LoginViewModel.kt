@@ -34,6 +34,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         if(!email.isNullOrBlank()) {
             val usuario: Usuario? = repository.getByEmail(email)
             usuario?.let { mUsuarioLogado.value = true }
+        } else {
+            mUsuarioLogado.value = false
         }
     }
 }

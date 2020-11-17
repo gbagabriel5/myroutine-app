@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.gba.myroutine.R
 import com.gba.myroutine.model.Usuario
 import com.gba.myroutine.ui.viewmodel.CadastroViewModel
@@ -50,8 +51,7 @@ class CadastroFragment : Fragment() {
                             }
                             viewModel.save(usuario)
                             progressCadastro.visibility = View.VISIBLE
-                            view.findNavController()
-                                .navigate(R.id.action_fragmentCadastro_to_fragmentLogin)
+                            findNavController().popBackStack()
                         } else {
                             Toast.makeText(context, "As senhas não conincidem!",
                                 Toast.LENGTH_SHORT).show()

@@ -2,7 +2,6 @@ package com.gba.myroutine.ui.fragment
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -47,11 +46,6 @@ class TarefasFragment : Fragment() {
                 actionFragmentTarefasToFragmentCadastroTarefas(id)
                 view.findNavController().navigate(action)
             }
-
-            override fun onDelete(id: Int) {
-//                viewModel.delete(id)
-//                viewModel.load(GuestConstants.FILTER.EMPTY)
-            }
         }
         tarefaAdapter.attachListener(mListener)
         observe()
@@ -72,8 +66,7 @@ class TarefasFragment : Fragment() {
             tarefaAdapter.updateGuests(it)
         })
         viewModel.usuarioDeslogado.observe(viewLifecycleOwner, Observer {
-            var controller = findNavController()
-            controller.navigate(R.id.action_fragmentTarefas_to_fragmentLogin)
+            findNavController().popBackStack()
         })
     }
 
@@ -83,14 +76,14 @@ class TarefasFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        return when(item.itemId) {
             R.id.menuSair -> {
                 viewModel.deslogar()
-                return true
+                true
             }
             else -> {
-                return NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
-                        || super.onOptionsItemSelected(item)
+                (NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
+                        || super.onOptionsItemSelected(item))
             }
         }
     }

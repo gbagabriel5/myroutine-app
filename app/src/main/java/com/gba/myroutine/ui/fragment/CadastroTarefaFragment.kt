@@ -32,7 +32,8 @@ class CadastroTarefaFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        setHasOptionsMenu(true)
+        if (args.id > 0)
+            setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_cadastro_tarefa, container, false)
     }
 
@@ -75,8 +76,7 @@ class CadastroTarefaFragment : Fragment() {
                 Toast.makeText(context, "Sucesso!", Toast.LENGTH_SHORT).show()
             else
                 Toast.makeText(context, "Falha!", Toast.LENGTH_SHORT).show()
-            var controller = findNavController()
-            controller.navigate(R.id.action_fragmentCadastroTarefas_to_fragmentTarefas)
+            findNavController().popBackStack()
         })
         viewModel.tarefa.observe(viewLifecycleOwner, Observer {
             if(it != null) {
@@ -89,8 +89,7 @@ class CadastroTarefaFragment : Fragment() {
                 Toast.makeText(context, "Tarefa removida com sucesso!", Toast.LENGTH_SHORT).show()
             else
                 Toast.makeText(context, "Falha ao remover Tarefa!", Toast.LENGTH_SHORT).show()
-            var controller = findNavController()
-            controller.navigate(R.id.action_fragmentCadastroTarefas_to_fragmentTarefas)
+            findNavController().popBackStack()
         })
     }
 
@@ -100,14 +99,14 @@ class CadastroTarefaFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        return when(item.itemId) {
             R.id.menuDelete -> {
                 viewModel.delete(args.id)
-                return true
+                true
             }
             else -> {
-                return NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
-                        || super.onOptionsItemSelected(item)
+                (NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
+                        || super.onOptionsItemSelected(item))
             }
         }
     }

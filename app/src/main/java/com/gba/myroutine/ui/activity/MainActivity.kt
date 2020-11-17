@@ -1,5 +1,6 @@
 package com.gba.myroutine.ui.activity
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -37,12 +38,23 @@ class MainActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.fragmentLogin -> {
                     toolbar_principal.visibility = View.GONE
+                    toolbar_principal.setTitleTextColor(Color.BLACK)
+                    toolbar_principal.setBackgroundColor(Color.TRANSPARENT)
                 }
                 R.id.fragmentTarefas -> {
                     toolbar_principal.visibility = View.VISIBLE
+                    toolbar_principal.setTitleTextColor(Color.BLACK)
+                    toolbar_principal.setBackgroundColor(Color.TRANSPARENT)
                 }
                 R.id.fragmentCadastroTarefas -> {
                     toolbar_principal.visibility = View.VISIBLE
+                    toolbar_principal.setTitleTextColor(Color.BLACK)
+                    toolbar_principal.setBackgroundColor(Color.TRANSPARENT)
+                }
+                R.id.fragmentCadastro -> {
+                    toolbar_principal.visibility = View.VISIBLE
+                    toolbar_principal.setTitleTextColor(Color.WHITE)
+                    toolbar_principal.setBackgroundColor(Color.parseColor("#8149aa"))
                 }
             }
         }

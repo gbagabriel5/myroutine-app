@@ -22,7 +22,7 @@ class LoginFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
-        viewModel.verificaUsuarioLogado()
+
     }
 
     override fun onCreateView(
@@ -35,20 +35,28 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         logar()
         txtCadastreSe.setOnClickListener {
             it.findNavController().navigate(R.id.action_loginFragment_to_cadastroFragment)
         }
-
     }
 
-    private fun logar() {
+    override fun onResume() {
+        super.onResume()
+         viewModel.verificaUsuarioLogado()
+        observer()
+    }
+
+    private fun observer() {
         viewModel.usuarioLogado.observe(viewLifecycleOwner, Observer {
             if (it) {
                 var controller = findNavController()
                 controller.navigate(R.id.action_loginFragment_to_tarefasFragment)
             }
         })
+    }
+    private fun logar() {
         btnLogar.setOnClickListener { view ->
             if(editEmail.text.toString().isNotBlank()) {
                 if(editSenha.text.toString().isNotBlank()) {

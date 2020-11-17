@@ -15,7 +15,6 @@ class TarefasViewModel(application: Application) : AndroidViewModel(application)
 
     private val sharedPreferences = LoginPreferences(application)
 
-
     private val mTarefaList = MutableLiveData<List<Tarefa>>()
     val tarefaList: LiveData<List<Tarefa>> = mTarefaList
 

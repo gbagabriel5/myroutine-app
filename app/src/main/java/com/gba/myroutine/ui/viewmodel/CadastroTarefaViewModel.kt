@@ -17,7 +17,7 @@ class CadastroTarefaViewModel(application: Application) : AndroidViewModel(appli
     val tarefaSalva : LiveData<Boolean> = mTarefaSalva
 
     private var mTarefaRemovida = MutableLiveData<Boolean>()
-    val tarefaRemovida : LiveData<Boolean> = mTarefaSalva
+    val tarefaRemovida : LiveData<Boolean> = mTarefaRemovida
 
     private var mTarefa = MutableLiveData<Tarefa>()
     val tarefa : LiveData<Tarefa> = mTarefa
@@ -30,7 +30,7 @@ class CadastroTarefaViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun delete(id: Int) {
-        mTarefaSalva.value = repository.delete(Tarefa().apply {this.id = id})
+        mTarefaRemovida.value = repository.delete(Tarefa().apply {this.id = id})
     }
 
     fun load(id: Int) {

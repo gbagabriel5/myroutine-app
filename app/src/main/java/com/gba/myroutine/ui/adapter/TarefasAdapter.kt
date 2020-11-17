@@ -8,6 +8,8 @@ import com.gba.myroutine.R
 import com.gba.myroutine.model.Tarefa
 import com.gba.myroutine.ui.listener.TarefasListener
 import kotlinx.android.synthetic.main.card_tarefa.view.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TarefasAdapter : RecyclerView.Adapter<TarefasAdapter.GuestViewHolder>() {
 
@@ -37,27 +39,18 @@ class TarefasAdapter : RecyclerView.Adapter<TarefasAdapter.GuestViewHolder>() {
         mListener = listener
     }
 
-    class GuestViewHolder(itemView: View,
-                          private var listener: TarefasListener) : RecyclerView.ViewHolder(itemView) {
-
+    class GuestViewHolder(
+            itemView: View,
+            private var listener: TarefasListener
+    ) : RecyclerView.ViewHolder(itemView) {
         fun bind(tarefa: Tarefa) {
             itemView.txtTitulo.text = tarefa.titulo
             itemView.txtDesc.text = tarefa.descricao
-            itemView.txtData.text = tarefa.data
-            itemView.rootView.setOnClickListener {
-                listener.onClick(tarefa.id)
-            }
-//            itemView.txtName.setOnLongClickListener {
-//                AlertDialog.Builder(itemView.context)
-//                    .setTitle(R.string.remocao_convidado)
-//                    .setMessage(R.string.deseja_remover)
-//                    .setPositiveButton(R.string.remover) { dialog, wich ->
-//                        listener.onDelete(guest.id)
-//                    }
-//                    .setNeutralButton(R.string.cancelar,null)
-//                    .show()
-//                true
-//            }
+            val date = Calendar.getInstance().time
+            val formatter = SimpleDateFormat.getDateTimeInstance() //or use getDateInstance()
+            val formatedDate = formatter.format(date)
+            itemView.txtData.text = formatedDate
+            itemView.rootView.setOnClickListener { listener.onClick(tarefa.id) }
         }
     }
 }
