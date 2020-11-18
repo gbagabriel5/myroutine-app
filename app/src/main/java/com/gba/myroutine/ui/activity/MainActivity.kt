@@ -1,9 +1,12 @@
 package com.gba.myroutine.ui.activity
 
+import android.content.Context
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -31,6 +34,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setupNavController()
         setupToolbar()
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (currentFocus != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     private fun setupNavController() {
@@ -63,7 +74,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupToolbar() {
         setSupportActionBar(toolbar_principal)
         toolbar_principal.setupWithNavController(
-            navController, appBarConfiguration
+                navController, appBarConfiguration
         )
     }
 }
