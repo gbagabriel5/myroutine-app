@@ -20,4 +20,7 @@ interface TarefaDAO {
     @Query("SELECT *FROM Tarefa")
     fun getAll() : List<Tarefa>
 
+    @Query("SELECT *FROM Tarefa WHERE usuarioId=:uId")
+    fun getAllByUserId(uId: Int) : List<Tarefa>
+
 }

@@ -17,4 +17,6 @@ class TarefaRepository(context: Context) {
     fun get(id: Int) : Tarefa = dataBase.get(id)
 
     fun getAll(): List<Tarefa> = dataBase.getAll()
+
+    fun getAllByUserId(id: Int) : List<Tarefa> = dataBase.getAllByUserId(id)
 }

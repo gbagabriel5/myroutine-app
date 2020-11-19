@@ -2,6 +2,7 @@ package com.gba.myroutine.model
 
 import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -20,4 +21,7 @@ class Tarefa {
 
     @ColumnInfo(name = "dtcriacao")
     var data: String = ""
+
+    @ColumnInfo(name = "usuarioId")
+    var usuarioId: Int = 0
 }

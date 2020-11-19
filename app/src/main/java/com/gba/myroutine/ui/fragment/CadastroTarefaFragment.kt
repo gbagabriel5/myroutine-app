@@ -54,6 +54,7 @@ class CadastroTarefaFragment : Fragment() {
                         this.id = mGuestId
                         this.titulo = titulo
                         this.descricao = desc
+                        this.usuarioId = viewModel.getUser().id
                     }
                     viewModel.save(tarefa)
                 } else {
@@ -91,6 +92,12 @@ class CadastroTarefaFragment : Fragment() {
                 Toast.makeText(context, "Falha ao remover Tarefa!", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         })
+
+        viewModel.usuario.observe(viewLifecycleOwner, {
+            if(it == null) {
+                Toast.makeText(context, "Usuario não encontrado", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -105,7 +112,7 @@ class CadastroTarefaFragment : Fragment() {
                 true
             }
             else -> {
-                (NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
+                (NavigationUI.onNavDestinationSelected(item, requireView().findNavController())
                         || super.onOptionsItemSelected(item))
             }
         }
