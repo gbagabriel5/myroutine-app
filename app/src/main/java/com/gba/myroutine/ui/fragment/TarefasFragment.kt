@@ -9,6 +9,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.gba.myroutine.R
 import com.gba.myroutine.ui.adapter.TarefasAdapter
 import com.gba.myroutine.ui.listener.TarefasListener
@@ -37,7 +38,7 @@ class TarefasFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerTarefas.layoutManager = GridLayoutManager(context, 2)
+        recyclerTarefas.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         recyclerTarefas.adapter = tarefaAdapter
 
         mListener = object : TarefasListener {
