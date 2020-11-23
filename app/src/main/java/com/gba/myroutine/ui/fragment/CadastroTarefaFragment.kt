@@ -48,20 +48,16 @@ class CadastroTarefaFragment : Fragment() {
         btnSalvar.setOnClickListener{
             if (!editTitulo.text.toString().isNullOrBlank()) {
                 val titulo = editTitulo.text.toString()
-                if (!editDesc.text.toString().isNullOrBlank()) {
-                    val desc = editDesc.text.toString()
-                    val tarefa = Tarefa().apply {
-                        this.id = mGuestId
-                        this.titulo = titulo
-                        this.descricao = desc
-                        this.usuarioId = viewModel.getUser().id
-                    }
-                    viewModel.save(tarefa)
-                } else {
-                    Toast.makeText(context, "Titulo em Branco!", Toast.LENGTH_SHORT).show()
+                val desc = editDesc.text.toString()
+                val tarefa = Tarefa().apply {
+                    this.id = mGuestId
+                    this.titulo = titulo
+                    this.descricao = desc
+                    this.usuarioId = viewModel.getUser().id
                 }
+                viewModel.save(tarefa)
             } else {
-                Toast.makeText(context, "Descrição vazia!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Titulo em Branco!", Toast.LENGTH_SHORT).show()
             }
         }
     }

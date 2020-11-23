@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:id="@+id/nestedScrollView"
     tools:context=".ui.fragment.CadastroTarefaFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,6 +22,7 @@
             android:ems="10"
             android:hint="Titulo"
             android:inputType="textPersonName"
+            android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -34,9 +36,13 @@
             android:gravity="start|top"
             android:hint="Descrição"
             android:inputType="textMultiLine"
+            android:maxLength="120"
+            android:maxLines="10"
+            app:layout_constraintBottom_toTopOf="@+id/btnSalvar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTitulo" />
+            app:layout_constraintTop_toBottomOf="@+id/editTitulo"
+            app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnSalvar"
