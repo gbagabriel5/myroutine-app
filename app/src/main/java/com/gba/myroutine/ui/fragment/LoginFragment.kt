@@ -37,16 +37,12 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observer()
+        viewModel.verificaUsuarioLogado()
         logar()
         txtCadastreSe.setOnClickListener {
             it.findNavController().navigate(R.id.action_loginFragment_to_cadastroFragment)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        observer()
-        viewModel.verificaUsuarioLogado()
     }
 
     private fun observer() {
@@ -76,8 +72,7 @@ class LoginFragment : Fragment() {
             if (it) {
                 progressLogin.visibility = View.GONE
                 Toast.makeText(context, "Bem Vindo!", Toast.LENGTH_SHORT).show()
-                var controller = findNavController()
-                controller.navigate(R.id.action_loginFragment_to_tarefasFragment)
+                findNavController().navigate(R.id.action_loginFragment_to_tarefasFragment)
             } else {
                 progressLogin.visibility = View.GONE
                 Toast.makeText(context, "Não foi possivel guardar o usuario!",
