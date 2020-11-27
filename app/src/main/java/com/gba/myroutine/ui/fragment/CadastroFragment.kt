@@ -6,35 +6,37 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.gba.myroutine.R
-import com.gba.myroutine.model.Usuario
+import com.gba.myroutine.api.repository.UserRepository
+import com.gba.myroutine.api.retrofit.RetrofitClient
+import com.gba.myroutine.room.model.Usuario
 import com.gba.myroutine.ui.viewmodel.CadastroViewModel
+import com.gba.myroutine.ui.viewmodel.CadastroViewModelFactory
+import com.gba.myroutine.valuableobjects.Status
 import kotlinx.android.synthetic.main.fragment_cadastro.*
 
 class CadastroFragment : Fragment() {
 
-    private lateinit var viewModel: CadastroViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(CadastroViewModel::class.java)
-        observe()
+    private val viewModel: CadastroViewModel by lazy {
+        val repository = UserRepository(RetrofitClient.userService)
+        ViewModelProvider(
+                this,
+                CadastroViewModelFactory(repository)
+        ).get(CadastroViewModel::class.java)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_cadastro, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observe()
         cadastrar()
     }
 
@@ -43,7 +45,7 @@ class CadastroFragment : Fragment() {
             if (editCadNome.text.toString().isNotBlank()) {
                 if (editCadEmail.text.toString().isNotBlank()) {
                     if (editCadSenha.text.toString().isNotBlank()) {
-                        if(editCadRepetirSenha.text.toString() == editCadSenha.text.toString()) {
+                        if (editCadRepetirSenha.text.toString() == editCadSenha.text.toString()) {
                             val usuario = Usuario().apply {
                                 this.nome = editCadNome.text.toString()
                                 this.email = editCadEmail.text.toString()
@@ -51,7 +53,6 @@ class CadastroFragment : Fragment() {
                             }
                             viewModel.save(usuario)
                             progressCadastro.visibility = View.VISIBLE
-                            findNavController().popBackStack()
                         } else {
                             Toast.makeText(context, "As senhas não conincidem!",
                                 Toast.LENGTH_SHORT).show()
@@ -68,15 +69,17 @@ class CadastroFragment : Fragment() {
         }
     }
     private fun observe() {
-        viewModel.saveUsuario.observe(this, Observer {
-            if(it) {
+        viewModel.userSaved.observe(viewLifecycleOwner, {
+            if (it.status == Status.SUCCESS) {
                 progressCadastro.visibility = View.VISIBLE
                 Toast.makeText(context, "Usuario cadastrado com sucesso!", Toast.LENGTH_SHORT)
                         .show()
-            } else {
+                findNavController().popBackStack()
+            } else if (it.status == Status.ERROR) {
                 progressCadastro.visibility = View.VISIBLE
                 Toast.makeText(context, "Falha ao Cadastrar Usuario!", Toast.LENGTH_SHORT)
                         .show()
+                findNavController().popBackStack()
             }
         })
     }

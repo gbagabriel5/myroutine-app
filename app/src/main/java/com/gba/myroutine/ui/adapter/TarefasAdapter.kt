@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.gba.myroutine.R
-import com.gba.myroutine.model.Tarefa
+import com.gba.myroutine.room.model.Tarefa
 import com.gba.myroutine.ui.listener.TarefasListener
 import kotlinx.android.synthetic.main.card_tarefa.view.*
 import java.text.SimpleDateFormat
@@ -46,11 +46,10 @@ class TarefasAdapter : RecyclerView.Adapter<TarefasAdapter.GuestViewHolder>() {
         fun bind(tarefa: Tarefa) {
             itemView.txtTitulo.text = tarefa.titulo
             itemView.txtDesc.text = tarefa.descricao
-            val date = Calendar.getInstance().time
-            val formatter = SimpleDateFormat.getDateTimeInstance() //or use getDateInstance()
-            val formatedDate = formatter.format(date)
-            itemView.txtData.text = formatedDate
-            itemView.rootView.setOnClickListener { listener.onClick(tarefa.id) }
+            itemView.txtData.text = tarefa.data
+            itemView.rootView.setOnClickListener {
+                listener.onClick(tarefa)
+            }
         }
     }
 }

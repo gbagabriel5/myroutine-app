@@ -1,8 +1,8 @@
-package com.gba.myroutine.repository
+package com.gba.myroutine.room.repository
 
 import android.content.Context
-import com.gba.myroutine.helper.MyRoutineDataBase
-import com.gba.myroutine.model.Usuario
+import com.gba.myroutine.room.helper.MyRoutineDataBase
+import com.gba.myroutine.room.model.Usuario
 
 class UsuarioRepository(context: Context) {
 

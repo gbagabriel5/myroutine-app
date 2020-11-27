@@ -1,13 +1,13 @@
-package com.gba.myroutine.model
+package com.gba.myroutine.room.model
 
-import androidx.room.Embedded
 import androidx.room.Relation
+import com.google.gson.annotations.SerializedName
 
 data class TarefaAndUsuario(
-        @Embedded val usuario: Usuario,
+        val usuario: Usuario,
         @Relation(
                 parentColumn = "id",
                 entityColumn = "usuarioId"
         )
-        val tarefa: Tarefa
+        val tarefa: List<Tarefa>
 )

@@ -2,30 +2,36 @@ package com.gba.myroutine.ui.fragment
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.gba.myroutine.R
+import com.gba.myroutine.api.repository.UserRepository
+import com.gba.myroutine.api.retrofit.RetrofitClient
+import com.gba.myroutine.room.model.Tarefa
 import com.gba.myroutine.ui.adapter.TarefasAdapter
 import com.gba.myroutine.ui.listener.TarefasListener
 import com.gba.myroutine.ui.viewmodel.TarefasViewModel
+import com.gba.myroutine.ui.viewmodel.TarefasViewModelFactory
+import com.gba.myroutine.valuableobjects.Status
 import kotlinx.android.synthetic.main.fragment_tarefas.*
 
 class TarefasFragment : Fragment() {
 
-    private lateinit var viewModel: TarefasViewModel
+    private val viewModel: TarefasViewModel by lazy {
+        val repository = UserRepository(RetrofitClient.userService)
+        ViewModelProvider(
+                this,
+                TarefasViewModelFactory(activity?.application!!, repository)
+        ).get(TarefasViewModel::class.java)
+    }
     private val tarefaAdapter: TarefasAdapter = TarefasAdapter()
     private lateinit var mListener: TarefasListener
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(TarefasViewModel::class.java)
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,9 +48,12 @@ class TarefasFragment : Fragment() {
         recyclerTarefas.adapter = tarefaAdapter
 
         mListener = object : TarefasListener {
-            override fun onClick(id: Int) {
+            override fun onClick(tarefa: Tarefa) {
+                val id = viewModel.getUserId()
+                tarefa.usuarioId = id
+                tarefa.user.id = id
                 val action = TarefasFragmentDirections.
-                actionFragmentTarefasToFragmentCadastroTarefas(id)
+                actionFragmentTarefasToFragmentCadastroTarefas(tarefa)
                 view.findNavController().navigate(action)
             }
         }
@@ -52,7 +61,7 @@ class TarefasFragment : Fragment() {
         observe()
         floatingActionButton.setOnClickListener {
             val action = TarefasFragmentDirections.
-            actionFragmentTarefasToFragmentCadastroTarefas(0)
+            actionFragmentTarefasToFragmentCadastroTarefas(Tarefa())
             it.findNavController().navigate(action)
         }
     }
@@ -63,11 +72,23 @@ class TarefasFragment : Fragment() {
     }
 
     private fun observe() {
-        viewModel.tarefaList.observe(viewLifecycleOwner, Observer {
-            tarefaAdapter.updateGuests(it)
+        viewModel.userWithTasks.observe(viewLifecycleOwner, {
+            if(it.status == Status.SUCCESS) {
+                it.data?.let { user ->
+                    tarefaAdapter.updateGuests(user.tasks)
+                }
+            }
         })
-        viewModel.usuarioDeslogado.observe(viewLifecycleOwner, Observer {
+        viewModel.userLogout.observe(viewLifecycleOwner, {
             findNavController().popBackStack()
+        })
+        viewModel.userId.observe(viewLifecycleOwner, {
+            if(it == false) {
+                Toast.makeText(context,
+                        "Não foi possivel pegar o email do usuario do shared preferences!",
+                        Toast.LENGTH_SHORT
+                ).show()
+            }
         })
     }
 
@@ -83,7 +104,7 @@ class TarefasFragment : Fragment() {
                 true
             }
             else -> {
-                (NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
+                (NavigationUI.onNavDestinationSelected(item, requireView().findNavController())
                         || super.onOptionsItemSelected(item))
             }
         }

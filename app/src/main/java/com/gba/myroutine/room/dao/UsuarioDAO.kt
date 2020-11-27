@@ -1,7 +1,7 @@
-package com.gba.myroutine.dao
+package com.gba.myroutine.room.dao
 
 import androidx.room.*
-import com.gba.myroutine.model.Usuario
+import com.gba.myroutine.room.model.Usuario
 
 @Dao
 interface UsuarioDAO {

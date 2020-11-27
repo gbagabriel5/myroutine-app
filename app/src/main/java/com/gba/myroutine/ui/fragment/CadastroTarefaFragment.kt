@@ -4,35 +4,41 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.NavigationUI
 import com.gba.myroutine.R
-import com.gba.myroutine.model.Tarefa
+import com.gba.myroutine.api.repository.TaskRepository
+import com.gba.myroutine.api.retrofit.RetrofitClient
+import com.gba.myroutine.room.model.Tarefa
 import com.gba.myroutine.ui.viewmodel.CadastroTarefaViewModel
+import com.gba.myroutine.ui.viewmodel.CadastroTarefaViewModelFactory
+import com.gba.myroutine.valuableobjects.Status
 import kotlinx.android.synthetic.main.fragment_cadastro_tarefa.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class CadastroTarefaFragment : Fragment() {
 
     val args: CadastroTarefaFragmentArgs by navArgs()
 
-    private lateinit var viewModel: CadastroTarefaViewModel
-
     private var mGuestId = 0
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this).get(CadastroTarefaViewModel::class.java)
-        super.onCreate(savedInstanceState)
+    private val viewModel: CadastroTarefaViewModel by lazy {
+        val repository = TaskRepository(RetrofitClient.taskService)
+        ViewModelProvider(
+                this,
+                CadastroTarefaViewModelFactory(activity?.application!!, repository)
+        ).get(CadastroTarefaViewModel::class.java)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (args.id > 0)
+        if (args.tarefaArg.id > 0)
             setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_cadastro_tarefa, container, false)
     }
@@ -49,13 +55,16 @@ class CadastroTarefaFragment : Fragment() {
             if (!editTitulo.text.toString().isNullOrBlank()) {
                 val titulo = editTitulo.text.toString()
                 val desc = editDesc.text.toString()
+                val date = Calendar.getInstance().time
+                val formatter = SimpleDateFormat.getDateTimeInstance()
+                val data = formatter.format(date)
                 val tarefa = Tarefa().apply {
                     this.id = mGuestId
                     this.titulo = titulo
                     this.descricao = desc
-                    this.usuarioId = viewModel.getUser().id
+                    this.data = data
                 }
-                viewModel.save(tarefa)
+                viewModel.saveOrUpdate(tarefa)
             } else {
                 Toast.makeText(context, "Titulo em Branco!", Toast.LENGTH_SHORT).show()
             }
@@ -63,28 +72,45 @@ class CadastroTarefaFragment : Fragment() {
     }
 
     private fun loadData() {
-        mGuestId = args.id
+        mGuestId = args.tarefaArg.id
         viewModel.load(mGuestId)
     }
 
     private fun observe() {
-        viewModel.tarefaSalva.observe(viewLifecycleOwner, Observer {
-            if(it)
-                Toast.makeText(context, "Sucesso!", Toast.LENGTH_SHORT).show()
-            else
+        viewModel.savedTask.observe(viewLifecycleOwner, {
+            if (it.status == Status.SUCCESS) {
+                it.data?.let { tarefa ->
+                    tarefa.usuarioId = args.tarefaArg.usuarioId
+                    viewModel.saveOrUpdateRoom(tarefa)
+                }
+            } else if (it.status == Status.ERROR) {
                 Toast.makeText(context, "Falha!", Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack()
-        })
-        viewModel.tarefa.observe(viewLifecycleOwner, Observer {
-            if(it != null) {
-                editTitulo.setText(it.titulo)
-                editDesc.setText(it.descricao)
             }
         })
-        viewModel.tarefaRemovida.observe(viewLifecycleOwner, Observer {
-            if(it)
+
+        viewModel.tarefaSalva.observe(viewLifecycleOwner, {
+            if(it.status == Status.SUCCESS) {
+                Toast.makeText(context, "Sucesso!", Toast.LENGTH_SHORT).show()
+            }
+            else if(it.status == Status.ERROR) {
+                Toast.makeText(context, "Falha!", Toast.LENGTH_SHORT).show()
+            }
+            findNavController().popBackStack()
+        })
+
+        viewModel.tarefa.observe(viewLifecycleOwner, {
+            if (it.status == Status.SUCCESS) {
+                it.data?.let { tarefa ->
+                    editTitulo.setText(tarefa.titulo)
+                    editDesc.setText(tarefa.descricao)
+                }
+            }
+        })
+
+        viewModel.tarefaRemovida.observe(viewLifecycleOwner, {
+            if (it.status == Status.SUCCESS)
                 Toast.makeText(context, "Tarefa removida com sucesso!", Toast.LENGTH_SHORT).show()
-            else
+            else if (it.status == Status.ERROR)
                 Toast.makeText(context, "Falha ao remover Tarefa!", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         })
@@ -104,7 +130,7 @@ class CadastroTarefaFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.menuDelete -> {
-                viewModel.delete(args.id)
+                viewModel.delete(args.tarefaArg.id)
                 true
             }
             else -> {

@@ -42,7 +42,7 @@
         android:label="Tarefa"
         tools:layout="@layout/fragment_cadastro_tarefa">
         <argument
-            android:name="id"
-            app:argType="integer" />
+            android:name="tarefaArg"
+            app:argType="com.gba.myroutine.room.model.Tarefa"/>
     </fragment>
 </navigation>

@@ -4,38 +4,73 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.gba.myroutine.api.Result
+import com.gba.myroutine.api.repository.UserRepository
 import com.gba.myroutine.constants.TaskConstants
-import com.gba.myroutine.model.Usuario
-import com.gba.myroutine.repository.UsuarioRepository
+import com.gba.myroutine.room.model.Usuario
 import com.gba.myroutine.shared.LoginPreferences
+import com.gba.myroutine.valuableobjects.Resource
+import kotlinx.coroutines.launch
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val context = application.applicationContext
+class LoginViewModel(
+        application: Application,
+        val userRepository: UserRepository
+) : AndroidViewModel(application) {
 
     private val sharedPreferences = LoginPreferences(application)
 
-    private val repository: UsuarioRepository = UsuarioRepository(context)
+    private var _Login = MutableLiveData<Resource<Boolean>>()
+    val login : LiveData<Resource<Boolean>> = _Login
 
-    private var mLoginUsuario = MutableLiveData<Usuario>()
-    val usuario : LiveData<Usuario> = mLoginUsuario
+    private var _User = MutableLiveData<Resource<Usuario>>()
+    val user : LiveData<Resource<Usuario>> = _User
 
-    private var mUsuarioLogado = MutableLiveData<Boolean>()
-    val usuarioLogado : LiveData<Boolean> = mUsuarioLogado
+    private var _UserId = MutableLiveData<Boolean>()
+    val userId : LiveData<Boolean> = _UserId
 
-    fun load(usuario: Usuario) {
-        mLoginUsuario.value = repository.getByLogin(usuario.email, usuario.senha)
-        if(mLoginUsuario.value != null)
-            sharedPreferences.store(TaskConstants.SHARED.USER_EMAIL, usuario.email)
+    private var mUsuarioLogado = MutableLiveData<Resource<Usuario>>()
+    val usuarioLogado : LiveData<Resource<Usuario>> = mUsuarioLogado
+
+    fun validateLogin(usuario: Usuario) {
+        viewModelScope.launch {
+            val response = userRepository.validatesLogin(usuario)
+            if (response is Result.Success) {
+                _Login.value = Resource.success(true)
+                sharedPreferences.store(TaskConstants.SHARED.USER_ID, usuario.id.toString())
+            } else if (response is Result.Error) {
+                _Login.value = Resource.error(response.exception)
+            }
+        }
+    }
+
+    fun getUserByEmail(email: String) {
+        viewModelScope.launch {
+            val response = userRepository.getByEmail(email)
+            if (response is Result.Success) {
+                _User.value = Resource.success(response.data)
+            } else if (response is Result.Error) {
+                _User.value = Resource.error(response.exception)
+            }
+        }
+    }
+
+    fun saveIdToSharedPreferences(id: String) {
+        sharedPreferences.store(TaskConstants.SHARED.USER_ID, id)
+        _UserId.value = true
     }
 
     fun verificaUsuarioLogado() {
-        val email = sharedPreferences.get(TaskConstants.SHARED.USER_EMAIL)
-        if(!email.isNullOrBlank()) {
-            val usuario: Usuario? = repository.getByEmail(email)
-            usuario?.let { mUsuarioLogado.value = true }
-        } else {
-            mUsuarioLogado.value = false
+        viewModelScope.launch {
+            val id = sharedPreferences.get(TaskConstants.SHARED.USER_ID)
+            if(!id.isNullOrBlank()) {
+                val response = userRepository.getById(id.toInt())
+                if (response is Result.Success) {
+                    mUsuarioLogado.value = Resource.success(response.data)
+                } else if (response is Result.Error) {
+                    mUsuarioLogado.value = Resource.error(response.exception)
+                }
+            }
         }
     }
 }

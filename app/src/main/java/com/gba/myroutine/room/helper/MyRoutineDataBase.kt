@@ -1,13 +1,13 @@
-package com.gba.myroutine.helper
+package com.gba.myroutine.room.helper
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.gba.myroutine.dao.TarefaDAO
-import com.gba.myroutine.dao.UsuarioDAO
-import com.gba.myroutine.model.Tarefa
-import com.gba.myroutine.model.Usuario
+import com.gba.myroutine.room.dao.TarefaDAO
+import com.gba.myroutine.room.dao.UsuarioDAO
+import com.gba.myroutine.room.model.Tarefa
+import com.gba.myroutine.room.model.Usuario
 
 @Database(entities = [Usuario::class, Tarefa::class], version = 2)
 abstract class MyRoutineDataBase : RoomDatabase() {

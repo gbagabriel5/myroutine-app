@@ -1,21 +1,25 @@
 package com.gba.myroutine.ui.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.gba.myroutine.model.Usuario
-import com.gba.myroutine.repository.UsuarioRepository
+import androidx.lifecycle.*
+import com.gba.myroutine.api.Result
+import com.gba.myroutine.api.repository.UserRepository
+import com.gba.myroutine.room.model.Usuario
+import com.gba.myroutine.valuableobjects.Resource
+import kotlinx.coroutines.launch
 
-class CadastroViewModel(application: Application) : AndroidViewModel(application) {
-    private val context = application.applicationContext
+class CadastroViewModel(val userRepository: UserRepository) : ViewModel() {
 
-    private val repository: UsuarioRepository = UsuarioRepository(context)
+    private var _UserSaved = MutableLiveData<Resource<Usuario>>()
+    val userSaved : LiveData<Resource<Usuario>> = _UserSaved
 
-    private var mSaveUsuario = MutableLiveData<Boolean>()
-    val saveUsuario : LiveData<Boolean> = mSaveUsuario
-
-    fun save(guest: Usuario) {
-        mSaveUsuario.value = repository.save(guest)
+    fun save(usuario: Usuario) {
+        viewModelScope.launch {
+            val response = userRepository.createUser(usuario)
+            if (response is Result.Success) {
+                _UserSaved.value = Resource.success(response.data)
+            } else if (response is Result.Error) {
+                _UserSaved.value = Resource.error(response.exception)
+            }
+        }
     }
 }

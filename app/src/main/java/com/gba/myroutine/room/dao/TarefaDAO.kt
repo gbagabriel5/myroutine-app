@@ -1,15 +1,16 @@
-package com.gba.myroutine.dao
+package com.gba.myroutine.room.dao
 
 import androidx.room.*
-import com.gba.myroutine.model.Tarefa
+import androidx.room.OnConflictStrategy.REPLACE
+import com.gba.myroutine.room.model.Tarefa
 
 @Dao
 interface TarefaDAO {
-    @Insert
-    fun save(tarefa: Tarefa) : Long
+    @Insert(onConflict = REPLACE)
+    suspend fun save(tarefa: Tarefa) : Long
 
-    @Update
-    fun update(tarefa: Tarefa) : Int
+    @Update(onConflict = REPLACE)
+    suspend fun update(tarefa: Tarefa) : Int
 
     @Delete
     fun delete(tarefa: Tarefa) : Int

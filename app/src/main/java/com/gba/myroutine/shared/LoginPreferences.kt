@@ -11,6 +11,10 @@ class LoginPreferences(context: Context) {
         mPreferences.edit().putString(key, value).apply()
     }
 
+    fun storeInt(key: String, value: Int) {
+        mPreferences.edit().putInt(key, value).apply()
+    }
+
     fun remove(key: String) {
         mPreferences.edit().remove(key).apply()
     }
