@@ -40,4 +40,38 @@ class TaskRepository(private val taskService: TaskService) {
             Result.Error(Exception())
         }
     }
+
+    suspend fun delete(id: Int) = coroutineScope {
+        try {
+            val response = taskService.delete(id)
+            if(response.isSuccessful) {
+                if(response.body() != null) {
+                    Result.Success(response.body())
+                } else {
+                    Result.Error(Exception())
+                }
+            } else {
+                Result.Error(Exception())
+            }
+        } catch (exception: Exception) {
+            Result.Error(Exception())
+        }
+    }
+
+    suspend fun getById(id: Int) = coroutineScope {
+        try {
+            val response = taskService.getById(id)
+            if(response.isSuccessful) {
+                if(response.body() != null) {
+                    Result.Success(data = response.body())
+                } else {
+                    Result.Error(Exception())
+                }
+            } else {
+                Result.Error(Exception())
+            }
+        } catch (exception: Exception) {
+            Result.Error(Exception())
+        }
+    }
 }
