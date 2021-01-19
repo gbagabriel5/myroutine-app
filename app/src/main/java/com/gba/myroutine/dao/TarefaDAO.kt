@@ -6,21 +6,20 @@ import com.gba.myroutine.model.Tarefa
 @Dao
 interface TarefaDAO {
     @Insert
-    fun save(tarefa: Tarefa) : Long
+    suspend fun save(tarefa: Tarefa) : Long
 
     @Update
-    fun update(tarefa: Tarefa) : Int
+    suspend fun update(tarefa: Tarefa) : Int
 
     @Delete
-    fun delete(tarefa: Tarefa) : Int
+    suspend fun delete(tarefa: Tarefa) : Int
 
     @Query("SELECT *FROM Tarefa WHERE id =:id")
-    fun get(id: Int) : Tarefa
+    suspend fun get(id: Int) : Tarefa
 
     @Query("SELECT *FROM Tarefa")
-    fun getAll() : List<Tarefa>
+    suspend fun getAll() : List<Tarefa>
 
     @Query("SELECT *FROM Tarefa WHERE usuarioId=:uId")
-    fun getAllByUserId(uId: Int) : List<Tarefa>
-
+    suspend fun getAllByUserId(uId: Int) : List<Tarefa>
 }
