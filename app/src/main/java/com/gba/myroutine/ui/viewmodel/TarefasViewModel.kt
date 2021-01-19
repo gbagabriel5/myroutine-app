@@ -4,11 +4,15 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.gba.myroutine.constants.TaskConstants
 import com.gba.myroutine.model.Tarefa
 import com.gba.myroutine.repository.TarefaRepository
 import com.gba.myroutine.repository.UsuarioRepository
+import com.gba.myroutine.response.Result
 import com.gba.myroutine.shared.LoginPreferences
+import com.gba.myroutine.valuableobjects.Resource
+import kotlinx.coroutines.launch
 
 class TarefasViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -18,8 +22,8 @@ class TarefasViewModel(application: Application) : AndroidViewModel(application)
 
     private val sharedPreferences = LoginPreferences(application)
 
-    private val mTarefaList = MutableLiveData<List<Tarefa>>()
-    val tarefaList: LiveData<List<Tarefa>> = mTarefaList
+    private val mTarefaList = MutableLiveData<Resource<List<Tarefa>>>()
+    val tarefaList: LiveData<Resource<List<Tarefa>>> = mTarefaList
 
     private var mDeslogarUsuario = MutableLiveData<Boolean>()
     val usuarioDeslogado : LiveData<Boolean> = mDeslogarUsuario
@@ -30,7 +34,12 @@ class TarefasViewModel(application: Application) : AndroidViewModel(application)
         //Pegando usuario pelo e-mail
         val user = userRepository.getByEmail(email)
         //pegando lista de tarefas pelo pelo id do usuario
-        mTarefaList.value = repository.getAllByUserId(user.id)
+        viewModelScope.launch {
+            when(val response = repository.getAllByUserId(user.id)) {
+                is Result.Success -> mTarefaList.value = Resource.success(data = response.data)
+                is Result.Error -> mTarefaList.value = Resource.error(response.exception)
+            }
+        }
     }
 
     fun deslogar() {
@@ -38,5 +47,4 @@ class TarefasViewModel(application: Application) : AndroidViewModel(application)
         sharedPreferences.remove(TaskConstants.SHARED.USER_EMAIL)
         mDeslogarUsuario.value = true
     }
-
 }

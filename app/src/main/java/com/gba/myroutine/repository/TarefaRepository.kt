@@ -3,20 +3,54 @@ package com.gba.myroutine.repository
 import android.content.Context
 import com.gba.myroutine.helper.MyRoutineDataBase
 import com.gba.myroutine.model.Tarefa
+import com.gba.myroutine.response.Result
 
 class TarefaRepository(context: Context) {
 
     private val dataBase = MyRoutineDataBase.getDataBase(context).tarefaDao()
 
-    fun save(tarefa: Tarefa) : Boolean = dataBase.save(tarefa) > 0
+    suspend fun save(tarefa: Tarefa) =
+        try {
+            dataBase.save(tarefa)
+            Result.Success(true)
+        } catch (exception: java.lang.Exception) {
+            Result.Error(java.lang.Exception())
+        }
 
-    fun update(tarefa: Tarefa) : Boolean = dataBase.update(tarefa) > 0
+    suspend fun update(tarefa: Tarefa) =
+        try {
+            dataBase.update(tarefa)
+            Result.Success(true)
+        } catch (exception: java.lang.Exception) {
+            Result.Error(java.lang.Exception())
+        }
 
-    fun delete(tarefa: Tarefa) : Boolean = dataBase.delete(tarefa) > 0
+    suspend fun delete(tarefa: Tarefa) =
+        try {
+            dataBase.delete(tarefa)
+            Result.Success(true)
+        } catch (exception: java.lang.Exception) {
+            Result.Error(java.lang.Exception())
+        }
 
-    fun get(id: Int) : Tarefa = dataBase.get(id)
+    suspend fun get(id: Int) =
+        try {
+            Result.Success(data = dataBase.get(id))
+        } catch (exception: java.lang.Exception) {
+            Result.Error(java.lang.Exception())
+        }
 
-    fun getAll(): List<Tarefa> = dataBase.getAll()
+    suspend fun getAll() =
+        try {
+            Result.Success(data = dataBase.getAll())
+        } catch (exception: java.lang.Exception) {
+            Result.Error(java.lang.Exception())
+        }
 
-    fun getAllByUserId(id: Int) : List<Tarefa> = dataBase.getAllByUserId(id)
+    suspend fun getAllByUserId(id: Int) =
+        try {
+            Result.Success(data = dataBase.getAllByUserId(id))
+        } catch (exception: java.lang.Exception) {
+            Result.Error(java.lang.Exception())
+        }
 }

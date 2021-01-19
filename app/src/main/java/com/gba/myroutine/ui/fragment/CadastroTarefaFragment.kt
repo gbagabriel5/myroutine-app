@@ -13,6 +13,7 @@ import androidx.navigation.ui.NavigationUI
 import com.gba.myroutine.R
 import com.gba.myroutine.model.Tarefa
 import com.gba.myroutine.ui.viewmodel.CadastroTarefaViewModel
+import com.gba.myroutine.valuableobjects.Status
 import kotlinx.android.synthetic.main.fragment_cadastro_tarefa.*
 
 class CadastroTarefaFragment : Fragment() {
@@ -55,7 +56,7 @@ class CadastroTarefaFragment : Fragment() {
                     this.descricao = desc
                     this.usuarioId = viewModel.getUser().id
                 }
-                viewModel.save(tarefa)
+                viewModel.saveOrUpdate(tarefa)
             } else {
                 Toast.makeText(context, "Titulo em Branco!", Toast.LENGTH_SHORT).show()
             }
@@ -64,28 +65,47 @@ class CadastroTarefaFragment : Fragment() {
 
     private fun loadData() {
         mGuestId = args.id
-        viewModel.load(mGuestId)
+        if(mGuestId > 0) viewModel.load(mGuestId)
     }
 
     private fun observe() {
-        viewModel.tarefaSalva.observe(viewLifecycleOwner, Observer {
-            if(it)
-                Toast.makeText(context, "Sucesso!", Toast.LENGTH_SHORT).show()
-            else
-                Toast.makeText(context, "Falha!", Toast.LENGTH_SHORT).show()
+        viewModel.tarefaSalva.observe(viewLifecycleOwner, {
+            when(it.status) {
+                Status.SUCCESS -> Toast.makeText(context,"Sucesso!", Toast.LENGTH_SHORT).show()
+                Status.ERROR -> Toast.makeText(context,"Falha!", Toast.LENGTH_SHORT).show()
+            }
             findNavController().popBackStack()
         })
-        viewModel.tarefa.observe(viewLifecycleOwner, Observer {
-            if(it != null) {
-                editTitulo.setText(it.titulo)
-                editDesc.setText(it.descricao)
+        viewModel.tarefa.observe(viewLifecycleOwner, {
+            when(it.status) {
+                Status.SUCCESS -> {
+                    it.data?.let { tarefa ->
+                        editTitulo.setText(tarefa.titulo)
+                        editDesc.setText(tarefa.descricao)
+                    }
+                }
+                Status.ERROR ->
+                    Toast.makeText(
+                        context,
+                        "Erro ao preencher campos com dados ja existentes! "+it.exception,
+                        Toast.LENGTH_SHORT
+                    ).show()
             }
         })
         viewModel.tarefaRemovida.observe(viewLifecycleOwner, Observer {
-            if(it)
-                Toast.makeText(context, "Tarefa removida com sucesso!", Toast.LENGTH_SHORT).show()
-            else
-                Toast.makeText(context, "Falha ao remover Tarefa!", Toast.LENGTH_SHORT).show()
+            when(it.status) {
+                Status.SUCCESS -> Toast.makeText(
+                    context,
+                    "Tarefa removida com sucesso!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                Status.ERROR -> Toast.makeText(
+                    context,
+                    "Falha ao remover Tarefa!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             findNavController().popBackStack()
         })
 

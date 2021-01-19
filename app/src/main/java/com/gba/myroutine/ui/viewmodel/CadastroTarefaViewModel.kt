@@ -4,12 +4,16 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.gba.myroutine.constants.TaskConstants
 import com.gba.myroutine.model.Tarefa
 import com.gba.myroutine.model.Usuario
 import com.gba.myroutine.repository.TarefaRepository
 import com.gba.myroutine.repository.UsuarioRepository
+import com.gba.myroutine.response.Result
 import com.gba.myroutine.shared.LoginPreferences
+import com.gba.myroutine.valuableobjects.Resource
+import kotlinx.coroutines.launch
 
 class CadastroTarefaViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -21,35 +25,60 @@ class CadastroTarefaViewModel(application: Application) : AndroidViewModel(appli
 
     private val userRepository = UsuarioRepository(application.applicationContext)
 
-    private var mTarefaSalva = MutableLiveData<Boolean>()
-    val tarefaSalva : LiveData<Boolean> = mTarefaSalva
+    private var mTarefaSalva = MutableLiveData<Resource<Boolean>>()
+    val tarefaSalva : LiveData<Resource<Boolean>> = mTarefaSalva
 
-    private var mTarefaRemovida = MutableLiveData<Boolean>()
-    val tarefaRemovida : LiveData<Boolean> = mTarefaRemovida
+    private var mTarefaRemovida = MutableLiveData<Resource<Boolean>>()
+    val tarefaRemovida : LiveData<Resource<Boolean>> = mTarefaRemovida
 
-    private var mTarefa = MutableLiveData<Tarefa>()
-    val tarefa : LiveData<Tarefa> = mTarefa
+    private var mTarefa = MutableLiveData<Resource<Tarefa>>()
+    val tarefa : LiveData<Resource<Tarefa>> = mTarefa
 
     private val mUsuario = MutableLiveData<Usuario>()
     val usuario: LiveData<Usuario> = mUsuario
 
-    fun save(tarefa: Tarefa) {
-        if (tarefa.id == 0)
-            mTarefaSalva.value = repository.save(tarefa)
-        else
-            mTarefaSalva.value = repository.update(tarefa)
+    fun saveOrUpdate(tarefa: Tarefa) {
+        viewModelScope.launch {
+            mTarefaSalva.value = Resource.loading()
+            when(tarefa.id) {
+                0 -> {
+                    when(val responseSave = repository.save(tarefa)) {
+                        is Result.Success -> mTarefaSalva.value = Resource.success(true)
+                        is Result.Error -> mTarefaSalva.value = Resource.error(responseSave.exception)
+                    }
+                } else -> {
+                    when(val responseUpdate = repository.update(tarefa)) {
+                        is Result.Success -> mTarefaSalva.value = Resource.success(true)
+                        is Result.Error -> mTarefaSalva.value =
+                            Resource.error(responseUpdate.exception)
+                    }
+                }
+            }
+        }
     }
 
     fun delete(id: Int) {
-        mTarefaRemovida.value = repository.delete(Tarefa().apply {this.id = id})
+        viewModelScope.launch {
+            mTarefaRemovida.value = Resource.loading()
+            when(val response = repository.delete(Tarefa().apply {this.id = id})) {
+                is Result.Success -> mTarefaRemovida.value = Resource.success(true)
+                is Result.Error -> mTarefaRemovida.value = Resource.error(response.exception)
+            }
+        }
     }
 
     fun load(id: Int) {
-        if(id > 0) mTarefa.value = repository.get(id)
+        viewModelScope.launch {
+            mTarefa.value = Resource.loading()
+            when(val response = repository.get(id)) {
+                is Result.Success -> mTarefa.value = Resource.success(response.data)
+                is Result.Error -> mTarefa.value = Resource.error(response.exception)
+            }
+        }
     }
 
     fun getUser(): Usuario {
-        var email = sharedPreferences.get(TaskConstants.SHARED.USER_EMAIL)
+        val email = sharedPreferences.get(TaskConstants.SHARED.USER_EMAIL)
         val user = userRepository.getByEmail(email)
         mUsuario.value = user
         return user

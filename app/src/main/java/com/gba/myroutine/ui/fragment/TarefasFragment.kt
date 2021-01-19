@@ -3,17 +3,16 @@ package com.gba.myroutine.ui.fragment
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.gba.myroutine.R
 import com.gba.myroutine.ui.adapter.TarefasAdapter
 import com.gba.myroutine.ui.listener.TarefasListener
 import com.gba.myroutine.ui.viewmodel.TarefasViewModel
+import com.gba.myroutine.valuableobjects.Status
 import kotlinx.android.synthetic.main.fragment_tarefas.*
 
 class TarefasFragment : Fragment() {
@@ -63,10 +62,17 @@ class TarefasFragment : Fragment() {
     }
 
     private fun observe() {
-        viewModel.tarefaList.observe(viewLifecycleOwner, Observer {
-            tarefaAdapter.updateGuests(it)
+        viewModel.tarefaList.observe(viewLifecycleOwner, {
+            when(it.status) {
+                Status.SUCCESS -> {
+                    it.data?.let { tarefas ->
+                        tarefaAdapter.updateGuests(tarefas)
+                    }
+                }
+            }
         })
-        viewModel.usuarioDeslogado.observe(viewLifecycleOwner, Observer {
+
+        viewModel.usuarioDeslogado.observe(viewLifecycleOwner, {
             findNavController().popBackStack()
         })
     }
@@ -83,7 +89,7 @@ class TarefasFragment : Fragment() {
                 true
             }
             else -> {
-                (NavigationUI.onNavDestinationSelected(item!!, requireView().findNavController())
+                (NavigationUI.onNavDestinationSelected(item, requireView().findNavController())
                         || super.onOptionsItemSelected(item))
             }
         }
