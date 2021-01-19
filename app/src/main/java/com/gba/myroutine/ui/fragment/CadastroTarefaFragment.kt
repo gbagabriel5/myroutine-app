@@ -23,6 +23,7 @@ class CadastroTarefaFragment : Fragment() {
     private lateinit var viewModel: CadastroTarefaViewModel
 
     private var mGuestId = 0
+    private var userId = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this).get(CadastroTarefaViewModel::class.java)
@@ -50,11 +51,12 @@ class CadastroTarefaFragment : Fragment() {
             if (!editTitulo.text.toString().isNullOrBlank()) {
                 val titulo = editTitulo.text.toString()
                 val desc = editDesc.text.toString()
+                viewModel.getUser()
                 val tarefa = Tarefa().apply {
                     this.id = mGuestId
                     this.titulo = titulo
                     this.descricao = desc
-                    this.usuarioId = viewModel.getUser().id
+                    this.usuarioId = userId
                 }
                 viewModel.saveOrUpdate(tarefa)
             } else {
@@ -110,8 +112,13 @@ class CadastroTarefaFragment : Fragment() {
         })
 
         viewModel.usuario.observe(viewLifecycleOwner, {
-            if(it == null) {
-                Toast.makeText(context, "Usuario não encontrado", Toast.LENGTH_SHORT).show()
+            when(it.status) {
+                Status.SUCCESS -> it.data?.let { user -> userId = user.id }
+                Status.ERROR -> Toast.makeText(
+                    context,
+                    "Usuario não encontrado",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }

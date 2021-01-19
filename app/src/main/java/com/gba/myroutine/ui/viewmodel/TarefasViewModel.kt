@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.gba.myroutine.constants.TaskConstants
 import com.gba.myroutine.model.Tarefa
+import com.gba.myroutine.model.Usuario
 import com.gba.myroutine.repository.TarefaRepository
 import com.gba.myroutine.repository.UsuarioRepository
 import com.gba.myroutine.response.Result
@@ -22,22 +23,35 @@ class TarefasViewModel(application: Application) : AndroidViewModel(application)
 
     private val sharedPreferences = LoginPreferences(application)
 
-    private val mTarefaList = MutableLiveData<Resource<List<Tarefa>>>()
-    val tarefaList: LiveData<Resource<List<Tarefa>>> = mTarefaList
+    private val _tarefaList = MutableLiveData<Resource<List<Tarefa>>>()
+    val tarefaList: LiveData<Resource<List<Tarefa>>> = _tarefaList
 
-    private var mDeslogarUsuario = MutableLiveData<Boolean>()
-    val usuarioDeslogado : LiveData<Boolean> = mDeslogarUsuario
+    private var _deslogarUsuario = MutableLiveData<Boolean>()
+    val deslogarUsuario : LiveData<Boolean> = _deslogarUsuario
+
+    private val _userByEmail = MutableLiveData<Resource<Usuario>>()
+    val userByEmail: LiveData<Resource<Usuario>> = _userByEmail
 
     fun load() {
         //Pegando e-mail do usuario logado
-        var email = sharedPreferences.get(TaskConstants.SHARED.USER_EMAIL)
+        val email = sharedPreferences.get(TaskConstants.SHARED.USER_EMAIL)
         //Pegando usuario pelo e-mail
-        val user = userRepository.getByEmail(email)
+
+        var userId = 0
+        viewModelScope.launch {
+            when(val userResponse = userRepository.getByEmail(email)) {
+                is Result.Success -> {
+                    _userByEmail.value = Resource.success(userResponse.data)
+                    userResponse.data?.let { userId = it.id }
+                }
+                is Result.Error -> _userByEmail.value = Resource.error(userResponse.exception)
+            }
+        }
         //pegando lista de tarefas pelo pelo id do usuario
         viewModelScope.launch {
-            when(val response = repository.getAllByUserId(user.id)) {
-                is Result.Success -> mTarefaList.value = Resource.success(data = response.data)
-                is Result.Error -> mTarefaList.value = Resource.error(response.exception)
+            when(val response = repository.getAllByUserId(userId)) {
+                is Result.Success -> _tarefaList.value = Resource.success(data = response.data)
+                is Result.Error -> _tarefaList.value = Resource.error(response.exception)
             }
         }
     }
@@ -45,6 +59,6 @@ class TarefasViewModel(application: Application) : AndroidViewModel(application)
     fun deslogar() {
         //removendo email do sharedPreferences
         sharedPreferences.remove(TaskConstants.SHARED.USER_EMAIL)
-        mDeslogarUsuario.value = true
+        _deslogarUsuario.value = true
     }
 }

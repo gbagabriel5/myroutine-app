@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.gba.myroutine.R
 import com.gba.myroutine.model.Usuario
 import com.gba.myroutine.ui.viewmodel.LoginViewModel
+import com.gba.myroutine.valuableobjects.Status
 import kotlinx.android.synthetic.main.fragment_login.*
 
 class LoginFragment : Fragment() {
@@ -22,14 +23,12 @@ class LoginFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
-
     }
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
@@ -44,40 +43,53 @@ class LoginFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-         viewModel.verificaUsuarioLogado()
+        viewModel.verificaUsuarioLogado()
         observer()
     }
 
     private fun observer() {
         viewModel.usuarioLogado.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                var controller = findNavController()
-                controller.navigate(R.id.action_loginFragment_to_tarefasFragment)
+            when (it.status) {
+                Status.SUCCESS -> {
+                    findNavController().navigate(R.id.action_fragmentLogin_to_fragmentTarefas)
+                }
+            }
+        })
+
+        viewModel.usuario.observe(viewLifecycleOwner, {
+            when(it.status) {
+
+                Status.LOADING -> progressLogin.visibility = View.VISIBLE
+
+                Status.SUCCESS -> {
+                    Toast.makeText(context, "Bem Vindo!", Toast.LENGTH_SHORT).show()
+                    progressLogin.visibility = View.GONE
+                    findNavController().navigate(R.id.action_fragmentLogin_to_fragmentTarefas)
+                    editEmail.setText("")
+                    editSenha.setText("")
+                    viewModel.setUndefinedOnLogin()
+                }
+
+                Status.ERROR -> {
+                    Toast.makeText(
+                        context,
+                        "Usuario ou senha incorretos!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    progressLogin.visibility = View.GONE
+                }
             }
         })
     }
     private fun logar() {
-        btnLogar.setOnClickListener { view ->
+        btnLogar.setOnClickListener {
             if(editEmail.text.toString().isNotBlank()) {
                 if(editSenha.text.toString().isNotBlank()) {
                     val usuario = Usuario().apply {
                         this.email = editEmail.text.toString()
                         this.senha = editSenha.text.toString()
                     }
-
                     viewModel.load(usuario)
-                    progressLogin.visibility = View.VISIBLE
-                    viewModel.usuario.observe(viewLifecycleOwner, Observer {
-                        if (it != null) {
-                            progressLogin.visibility = View.GONE
-                            Toast.makeText(context, "Bem Vindo!", Toast.LENGTH_SHORT).show()
-                            view.findNavController().navigate(R.id.action_loginFragment_to_tarefasFragment)
-                        } else {
-                            progressLogin.visibility = View.GONE
-                            Toast.makeText(context, "Usuario ou senha incorretos!",
-                                    Toast.LENGTH_SHORT).show()
-                        }
-                    })
                 } else {
                     Toast.makeText(context, "Digite a sua senha!", Toast.LENGTH_SHORT).show()
                 }
