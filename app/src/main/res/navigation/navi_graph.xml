@@ -20,10 +20,8 @@
             app:enterAnim="@anim/slide_in"
             app:popExitAnim="@anim/slide_out"/>
         <action
-            android:id="@+id/action_loginFragment_to_tarefasFragment"
-            app:destination="@id/fragmentTarefas"
-            app:enterAnim="@anim/slide_in"
-            app:popExitAnim="@anim/slide_out"/>
+            android:id="@+id/action_fragmentLogin_to_fragmentTarefas"
+            app:destination="@id/fragmentTarefas" />
     </fragment>
     <fragment
         android:id="@+id/fragmentTarefas"

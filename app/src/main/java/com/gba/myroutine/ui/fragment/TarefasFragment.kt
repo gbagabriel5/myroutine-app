@@ -2,6 +2,7 @@ package com.gba.myroutine.ui.fragment
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -72,8 +73,18 @@ class TarefasFragment : Fragment() {
             }
         })
 
-        viewModel.usuarioDeslogado.observe(viewLifecycleOwner, {
+        viewModel.deslogarUsuario.observe(viewLifecycleOwner, {
             findNavController().popBackStack()
+        })
+
+        viewModel.userByEmail.observe(viewLifecycleOwner, {
+            when(it.status) {
+                Status.ERROR -> Toast.makeText(
+                    context,
+                    "Usuario não encontrado por email de login",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         })
     }
 

@@ -34,8 +34,8 @@ class CadastroTarefaViewModel(application: Application) : AndroidViewModel(appli
     private var mTarefa = MutableLiveData<Resource<Tarefa>>()
     val tarefa : LiveData<Resource<Tarefa>> = mTarefa
 
-    private val mUsuario = MutableLiveData<Usuario>()
-    val usuario: LiveData<Usuario> = mUsuario
+    private val mUsuario = MutableLiveData<Resource<Usuario>>()
+    val usuario: LiveData<Resource<Usuario>> = mUsuario
 
     fun saveOrUpdate(tarefa: Tarefa) {
         viewModelScope.launch {
@@ -77,10 +77,15 @@ class CadastroTarefaViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun getUser(): Usuario {
+    fun getUser() {
         val email = sharedPreferences.get(TaskConstants.SHARED.USER_EMAIL)
-        val user = userRepository.getByEmail(email)
-        mUsuario.value = user
-        return user
+        viewModelScope.launch {
+            when(val response = userRepository.getByEmail(email)) {
+                is Result.Success -> {
+                    response.data?.let { mUsuario.value = Resource.success(response.data) }
+                }
+                is Result.Error -> mUsuario.value = Resource.error(response.exception)
+            }
+        }
     }
 }
